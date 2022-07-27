@@ -1,0 +1,25 @@
+{
+  "name": "dct-chall-back",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "csv-writer": "^1.6.0",
+    "dotenv": "^16.0.1",
+    "fastify": "^4.3.0",
+    "got": "^12.2.0",
+    "moment": "^2.29.4"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.19"
+  },
+  "type": "module"
+}
