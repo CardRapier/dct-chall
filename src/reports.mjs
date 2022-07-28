@@ -37,7 +37,7 @@ const prepareHeaderWithKeys = (keys, prefix) => {
   return header;
 };
 
-const tranformData = (data) => {
+export const tranformData = (data) => {
   let result = {};
   let keys = Object.keys(data);
   for (const key of keys) {

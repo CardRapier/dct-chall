@@ -3,6 +3,7 @@ import { diffKeys, metricKeys } from "./constants.mjs";
 import fastify from "fastify";
 import got from "got";
 import moment from "moment";
+import { tranformData } from "./reports.mjs";
 
 const vehicles = ["990", "991", "1089", "1090", "1200", "1239"];
 const uri = "https://pegasus239.peginstances.com/api/rawdata";
@@ -22,7 +23,7 @@ export const makeMetrics = async () => {
     .json();
 
   for (const vehicle of vehicles) {
-    for (let i = 7; 0 < i; i--) {
+    for (let i = 6; 0 <= i; i--) {
       const dayData = dayDataFromVehicle(vehicle, i, response.events);
       records.push(dayData);
     }
@@ -30,8 +31,37 @@ export const makeMetrics = async () => {
   return records;
 };
 
-const dayDataFromVehicle = (vehicle, dayIndex, data) => {
-  const day = new moment().subtract(dayIndex, "d").format("YYYY-MM-DD");
+export const makeMetricsFromDate = async (date) => {
+  let records = [];
+  const now = new moment(date).format("YYYY-MM-DD[T]HH:mm:ss");
+  const weekAgo = new moment(date)
+    .subtract(7, "d")
+    .format("YYYY-MM-DD[T]00:00:00");
+
+  const response = await got
+    .get(
+      `${uri}?vehicles=${vehicles.join(
+        ","
+      )}&fields=${fields}&from=${weekAgo}&to=${now}&auth=${process.env.AUTH}`
+    )
+    .json();
+
+  for (const vehicle of vehicles) {
+    for (let i = 6; 0 <= i; i--) {
+      const dayData = dayDataFromVehicle(vehicle, i, response.events, date);
+      records.push(tranformData(dayData));
+    }
+  }
+  const orderData = records.sort(
+    (a, b) => Number(a.date.split("-")[2]) - Number(b.date.split("-")[2])
+  );
+  return orderData;
+};
+
+const dayDataFromVehicle = (vehicle, dayIndex, data, date) => {
+  const day = new moment(date).subtract(dayIndex, "d").format("YYYY-MM-DD");
+  console.log(dayIndex);
+  console.log(day);
   const dayData = data.filter(
     (d) => d.event_time.includes(day) && `${d.vid}` === vehicle
   );
